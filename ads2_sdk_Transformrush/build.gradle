@@ -1,0 +1,87 @@
+plugins {
+    alias(libs.plugins.android.library)
+    id 'maven-publish' // 必须引入这个插件才能使用 publishing() 方法
+}
+
+android {
+    namespace 'com.xn.ads2.ads2_sdk_transformrush'
+    compileSdk {
+        version = release(36)
+    }
+
+    defaultConfig {
+        minSdk 24
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // AGP 9.0.0 中，发布组件需要明确配置
+    publishing {
+        singleVariant("release") {
+            withJavadocJar() // 生成 Javadoc 包（JitPack 构建需要）
+            withSourcesJar() // 生成源码包（可选，方便其他开发者查看源码）
+        }
+    }
+}
+
+dependencies {
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+
+// 导⼊ MonetizeCore Savedoge SDK
+    implementation("com.monetize:monetize-core-transformrush-sdk:1.0.1")
+
+    // SDK 所需的运⾏时依赖
+    def ktorVersion = "3.1.2"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+    implementation("com.squareup.okio:okio:3.9.1")
+    implementation("androidx.webkit:webkit:1.15.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    // desugaring（⽀持 Java 8+ API）
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+}
+
+// 发布信息配置（AGP 9.0.0 推荐 afterEvaluate 包裹）
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                // 核心发布信息（其他开发者依赖时用）
+                groupId = "com.github.xn" // 例如 com.github.zhangsan
+                artifactId = "ads2_sdk_transformrush" // 库名称，自定义
+                version = "v1.0.0" // 版本号，和 GitHub Tag 一致
+            }
+        }
+
+        // 可选：指定发布仓库（本地仓库，JitPack 会读取）
+        repositories {
+            maven {
+                url = uri("$buildDir/repo")
+            }
+        }
+    }
+}
