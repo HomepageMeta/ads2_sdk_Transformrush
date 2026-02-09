@@ -54,7 +54,9 @@ dependencies {
     debugImplementation libs.androidx.compose.ui.tooling
     debugImplementation libs.androidx.compose.ui.test.manifest
 
-    implementation project(':ads2_sdk_Transformrush')
+//    implementation project(':ads2_sdk_Transformrush')
+    implementation 'com.github.HomepageMeta:ads2_sdk_Transformrush:v1.0.0'
+
 
     // 3. 添加核心库脱糖的依赖（必须）
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
